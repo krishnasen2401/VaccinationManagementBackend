@@ -1,0 +1,89 @@
+-- SQLite Database Schema
+-- Based on JavaScript classes: Users, Student, Vaccine, VaccinationDrive, VaccinationRecord
+
+-- Performance and Scaling Settings
+
+-- Enable Write-Ahead Logging (WAL) mode for better concurrency and performance
+PRAGMA journal_mode = WAL;
+
+-- Set synchronous mode to NORMAL for a balance between performance and durability with WAL
+PRAGMA synchronous = NORMAL;
+
+-- Set the size of the in-memory cache in kilobytes (-ve value)
+-- Adjust based on available memory and workload for better read performance
+PRAGMA cache_size = -20000; -- Example: 20MB cache
+
+-- Enable foreign key support (already present, good practice to keep)
+PRAGMA foreign_keys = ON;
+
+-- Table: users
+-- Stores information about users.
+CREATE TABLE users (
+    user_id INTEGER PRIMARY KEY AUTOINCREMENT, -- Unique identifier for the user
+    username TEXT NOT NULL UNIQUE, -- User's username
+    password TEXT NOT NULL, -- User's password (should be hashed)
+    token TEXT, -- Authentication token
+    contact TEXT, -- User's contact information
+    roles TEXT -- User roles (JSON string)
+);
+
+-- Table: students
+-- Stores information about students.
+CREATE TABLE students (
+    student_id INTEGER PRIMARY KEY AUTOINCREMENT, -- Unique identifier for the student (indexed implicitly by PK)
+    name TEXT NOT NULL, -- Student's full name
+    classname TEXT, -- Student's class
+    date_of_birth TEXT, -- Student's date of birth (ISO8601 text)
+    guardians TEXT -- Guardian information (JSON string)
+);
+
+-- Table: vaccines
+-- Stores information about vaccines.
+CREATE TABLE vaccines (
+    vaccine_id INTEGER PRIMARY KEY AUTOINCREMENT, -- Unique identifier for the vaccine (indexed implicitly by PK)
+    vaccine_name TEXT NOT NULL, -- Name of the vaccine
+    manufacturer TEXT, -- Vaccine manufacturer
+    dosage TEXT, -- Recommended dosage
+    description TEXT, -- Vaccine description
+    storage_requirements TEXT, -- Storage requirements
+    batches TEXT, -- Batch information (JSON string of objects)
+    doses_per_vial INTEGER, -- Number of doses per vial
+    vaccine_type TEXT, -- Type of vaccine
+    administer_before TEXT, -- Date to administer before (ISO8601 text)
+    country_of_origin TEXT, -- Country of origin
+    package_insert TEXT, -- Package insert information
+    numberOfVials INTEGER -- Number of vials in a package
+);
+
+-- Table: vaccination_drives
+-- Stores information about vaccination drives.
+CREATE TABLE vaccination_drives (
+    drive_id INTEGER PRIMARY KEY AUTOINCREMENT, -- Unique identifier for the vaccination drive (indexed implicitly by PK)
+    name TEXT NOT NULL, -- Name of the vaccination drive
+    created_by INTEGER, -- User who created the drive
+    start_date TEXT NOT NULL, -- Start date of the drive (ISO8601 text)
+    end_date TEXT NOT NULL, -- End date of the drive (ISO8601 text)
+    location TEXT, -- Location of the drive
+    target_classes TEXT, -- Target classes for the drive (JSON string)
+    notes TEXT, -- Notes about the drive
+    status TEXT, -- Status of the drive (e.g., 'scheduled', 'active', 'completed')
+    vaccines TEXT, -- Vaccines available in the drive (JSON string of vaccine data)
+    FOREIGN KEY (created_by) REFERENCES users(user_id) -- Link to the users table
+);
+
+-- Table: vaccination_records
+-- Stores records of vaccinations given to students during drives.
+CREATE TABLE vaccination_records (
+    record_id INTEGER PRIMARY KEY AUTOINCREMENT, -- Unique identifier for the vaccination record (indexed implicitly by PK)
+    student_id INTEGER NOT NULL, -- Student who received the vaccine
+    date TEXT NOT NULL, -- Date of vaccination (ISO8601 text)
+    drive_id INTEGER, -- Vaccination drive the record belongs to
+    vaccine_id INTEGER NOT NULL, -- Vaccine administered
+    administered_by INTEGER, -- User who administered the vaccine
+    batch_id TEXT, -- Batch ID of the administered vaccine
+    notes TEXT, -- Notes about the specific vaccination record
+    FOREIGN KEY (student_id) REFERENCES students(student_id), -- Link to the students table
+    FOREIGN KEY (drive_id) REFERENCES vaccination_drives(drive_id), -- Link to the vaccination_drives table
+    FOREIGN KEY (vaccine_id) REFERENCES vaccines(vaccine_id), -- Link to the vaccines table
+    FOREIGN KEY (administered_by) REFERENCES users(user_id) -- Link to the users table
+);

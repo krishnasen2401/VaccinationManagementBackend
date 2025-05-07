@@ -1,0 +1,16 @@
+{
+  "name": "vaccinationmanagementbackend",
+  "version": "1.0.0",
+  "description": "backend",
+  "main": "index.js",
+  "scripts": {
+    "setup-db": "node database/setup.js"
+  },
+  "author": "krishnasen",
+  "license": "ISC",
+  "dependencies": {
+    "better-sqlite3": "^11.9.1",
+    "body-parser": "2.2.0",
+    "express": "5.1.0"
+  }
+}
