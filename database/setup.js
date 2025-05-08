@@ -21,13 +21,22 @@ try {
         );
     `;
 
+    const createClassesTableSQL = `
+        CREATE TABLE IF NOT EXISTS classes (
+            class_id TEXT PRIMARY KEY,
+            name TEXT NOT NULL,
+            section TEXT
+        );
+    `;
+
     const createStudentsTableSQL = `
         CREATE TABLE IF NOT EXISTS students (
             student_id TEXT PRIMARY KEY,
             name TEXT NOT NULL,
-            classname TEXT,
+            class_id TEXT,
             date_of_birth TEXT,
-            guardians TEXT
+            guardians TEXT,
+            FOREIGN KEY (class_id) REFERENCES classes(class_id)
         );
     `;
 
@@ -84,6 +93,9 @@ try {
 
     db.exec(createUsersTableSQL);
     console.log('Users table created or already exists.');
+
+    db.exec(createClassesTableSQL);
+    console.log('Classes table created or already exists.');
 
     db.exec(createStudentsTableSQL);
     console.log('Students table created or already exists.');
