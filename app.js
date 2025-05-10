@@ -55,6 +55,7 @@ app.use('/vaccines', vaccineRoutes);
 app.use('/drives', vaccinationDriveRoutes);
 app.use('/records', vaccinationRecordRoutes);
 app.use('/students', studentUploadRoutes); // handles /students/upload
+app.use('/dashboard', require('./routes/dashboardRoute'));
 
 // Root endpoint
 app.get('/', (req, res) => {
