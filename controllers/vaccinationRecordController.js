@@ -1,5 +1,7 @@
-const VaccinationRecord = require('../models/VaccinationRecord');
 const db = require('../database/db');
+const VaccinationRecord = require('../models/VaccinationRecord');
+const { getVaccineById } = require('./vaccineController');
+const { getDriveById } = require('./vaccinationDriveController');
 
 const addRecord = (record) => {
   const stmt = db.prepare(`
@@ -45,7 +47,11 @@ const deleteRecordById = (id) => {
 
 const getRecordById = (id) => {
   const row = db.prepare('SELECT * FROM vaccination_records WHERE record_id = ?').get(id);
-  return row ? VaccinationRecord.fromSQLiteRow(row) : null;
+  if (!row) return null;
+  const record = VaccinationRecord.fromSQLiteRow(row);
+  record.vaccine = getVaccineById(record.vaccineId);
+  record.drive = getDriveById(record.driveId);
+  return record;
 };
 
 const getRecords = (filters = {}) => {
@@ -75,16 +81,20 @@ const getRecords = (filters = {}) => {
   }
 
   const rows = db.prepare(query).all(...params);
-  return rows.map(VaccinationRecord.fromSQLiteRow);
+  return rows.map(row => {
+    const record = VaccinationRecord.fromSQLiteRow(row);
+    record.vaccine = getVaccineById(record.vaccineId);
+    record.drive = getDriveById(record.driveId);
+    return record;
+  });
 };
 
 const isDuplicateVaccination = (studentId, vaccineId) => {
-  const stmt = db.prepare(`
-    SELECT COUNT(*) as count FROM vaccination_records
-    WHERE student_id = ? AND vaccine_id = ?
-  `);
-  const { count } = stmt.get(studentId, vaccineId);
-  return count > 0;
+  const stmt = db.prepare(
+    'SELECT COUNT(*) as count FROM vaccination_records WHERE student_id = ? AND vaccine_id = ?'
+  );
+  const result = stmt.get(studentId, vaccineId);
+  return result.count > 0;
 };
 
 module.exports = {

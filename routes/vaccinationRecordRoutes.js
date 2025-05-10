@@ -6,8 +6,7 @@ const {
   updateRecord,
   deleteRecordById,
   getRecordById,
-  getRecords,
-  isDuplicateVaccination
+  getRecords
 } = require('../controllers/vaccinationRecordController');
 
 const router = express.Router();
@@ -20,16 +19,17 @@ const router = express.Router();
  *       type: object
  *       required:
  *         - studentId
- *         - vaccineId
  *         - date
+ *         - vaccineId
  *       properties:
  *         recordId:
  *           type: string
+ *           format: uuid
  *         studentId:
  *           type: string
  *         date:
  *           type: string
- *           format: date-time
+ *           format: date
  *         driveId:
  *           type: string
  *         vaccineId:
@@ -46,7 +46,7 @@ const router = express.Router();
  * @swagger
  * /records:
  *   get:
- *     summary: Get vaccination records with filters
+ *     summary: Get all vaccination records (with nested vaccine & drive)
  *     tags: [VaccinationRecord]
  *     parameters:
  *       - in: query
@@ -73,7 +73,7 @@ const router = express.Router();
  *           format: date
  *     responses:
  *       200:
- *         description: List of vaccination records
+ *         description: List of vaccination records with nested details
  */
 router.get('/', (req, res) => {
   const records = getRecords(req.query);
@@ -84,17 +84,17 @@ router.get('/', (req, res) => {
  * @swagger
  * /records/{id}:
  *   get:
- *     summary: Get a vaccination record by ID
+ *     summary: Get vaccination record by ID (with nested details)
  *     tags: [VaccinationRecord]
  *     parameters:
  *       - in: path
  *         name: id
- *         required: true
  *         schema:
  *           type: string
+ *         required: true
  *     responses:
  *       200:
- *         description: Record found
+ *         description: Record with nested vaccine & drive info
  *       404:
  *         description: Not found
  */
@@ -109,40 +109,39 @@ router.get('/:id', (req, res) => {
  * @swagger
  * /records:
  *   post:
- *     summary: Add a new vaccination record
+ *     summary: Create a new vaccination record
  *     tags: [VaccinationRecord]
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
- *           example:{
+ *           example:
  *             studentId: "student-uuid"
  *             date: "2025-05-01T10:00:00Z"
  *             driveId: "drive-uuid"
  *             vaccineId: "vaccine-uuid"
  *             administeredBy: "user-uuid"
- *             batchId: "batch-123"
+ *             batchId: "batch-001"
  *             notes: "No side effects"
- *            }
  *     responses:
  *       201:
  *         description: Record created
- *       409:
- *         description: Duplicate vaccination
  */
 router.post('/', (req, res) => {
   const {
     studentId, date, driveId, vaccineId,
     administeredBy, batchId, notes
   } = req.body;
-
-  if (isDuplicateVaccination(studentId, vaccineId)) {
-    return res.status(409).json({ message: 'Student already vaccinated with this vaccine' });
-  }
-
+  const recordId = uuidv4();
   const record = new VaccinationRecord(
-    uuidv4(), studentId, new Date(date), driveId,
-    vaccineId, administeredBy, batchId, notes
+    recordId,
+    studentId,
+    new Date(date),
+    driveId,
+    vaccineId,
+    administeredBy,
+    batchId,
+    notes
   );
   addRecord(record);
   res.status(201).json(record);
@@ -158,11 +157,15 @@ router.post('/', (req, res) => {
  *       required: true
  *       content:
  *         application/json:
- *           example:{
+ *           example:
  *             recordId: "record-uuid"
  *             studentId: "student-uuid"
- *             ...
- * }
+ *             date: "2025-05-01T10:00:00Z"
+ *             driveId: "drive-uuid"
+ *             vaccineId: "vaccine-uuid"
+ *             administeredBy: "user-uuid"
+ *             batchId: "batch-001"
+ *             notes: "Updated notes"
  *     responses:
  *       200:
  *         description: Record updated
@@ -174,8 +177,14 @@ router.put('/', (req, res) => {
   } = req.body;
 
   const record = new VaccinationRecord(
-    recordId, studentId, new Date(date), driveId,
-    vaccineId, administeredBy, batchId, notes
+    recordId,
+    studentId,
+    new Date(date),
+    driveId,
+    vaccineId,
+    administeredBy,
+    batchId,
+    notes
   );
   updateRecord(record);
   res.json({ message: 'Record updated successfully' });
@@ -190,9 +199,9 @@ router.put('/', (req, res) => {
  *     parameters:
  *       - in: path
  *         name: id
- *         required: true
  *         schema:
  *           type: string
+ *         required: true
  *     responses:
  *       200:
  *         description: Record deleted
