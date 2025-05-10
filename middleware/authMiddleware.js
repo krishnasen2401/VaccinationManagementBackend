@@ -1,5 +1,4 @@
-const Database = require('better-sqlite3');
-const db = new Database('./database/vaccination_data.db');
+const db = require('../database/db');
 
 const requireAuth = (req, res, next) => {
   const authHeader = req.headers.authorization;
@@ -17,7 +16,7 @@ const requireAuth = (req, res, next) => {
     return res.status(403).json({ message: 'Unauthorized token' });
   }
 
-  req.user = user; // optionally store user info in req
+  req.user = user; // optionally attach user to request
   next();
 };
 

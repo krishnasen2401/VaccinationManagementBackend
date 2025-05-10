@@ -5,7 +5,10 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const path = require('path');
 
-// Routes
+// Middleware
+const { requireAuth } = require('./middleware/authMiddleware');
+
+// Route imports
 const studentRoutes = require('./routes/studentRoutes');
 const classRoutes = require('./routes/classRoutes');
 const userRoutes = require('./routes/userRoutes');
@@ -13,16 +16,16 @@ const vaccineRoutes = require('./routes/vaccineRoutes');
 const vaccinationDriveRoutes = require('./routes/vaccinationDriveRoutes');
 const vaccinationRecordRoutes = require('./routes/vaccinationRecordRoutes');
 const studentUploadRoutes = require('./routes/studentUploadRoute');
+const dashboardRoutes = require('./routes/dashboardRoute');
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Middleware
+// Middleware setup
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Swagger setup
 const swaggerOptions = {
   swaggerDefinition: {
     openapi: '3.0.0',
@@ -37,25 +40,42 @@ const swaggerOptions = {
         description: 'Local server'
       }
     ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT'
+        }
+      }
+    },
+    security: [
+      {
+        bearerAuth: []
+      }
+    ]
   },
-  apis: [
-    './routes/*.js',
-    './models/*.js'
-  ],
+  apis: ['./routes/*.js', './models/*.js'],
 };
+
 
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-// Route bindings
+// Unprotected user routes
+app.use('/users', userRoutes);
+
+// Apply authentication globally for remaining routes
+app.use(requireAuth);
+
+// Protected routes
 app.use('/students', studentRoutes);
 app.use('/classes', classRoutes);
-app.use('/users', userRoutes);
 app.use('/vaccines', vaccineRoutes);
 app.use('/drives', vaccinationDriveRoutes);
 app.use('/records', vaccinationRecordRoutes);
 app.use('/students', studentUploadRoutes); // handles /students/upload
-app.use('/dashboard', require('./routes/dashboardRoute'));
+app.use('/dashboard', dashboardRoutes);
 
 // Root endpoint
 app.get('/', (req, res) => {
