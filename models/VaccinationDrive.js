@@ -1,5 +1,3 @@
-const Vaccine = require('./Vaccine'); // Import the Vaccine class
-
 class VaccinationDrive {
   constructor(
     driveId,
@@ -11,60 +9,59 @@ class VaccinationDrive {
     targetClasses,
     notes,
     status,
-    vaccines // Changed vaccines property to an array of Vaccine objects
+    vaccines // now an array of vaccineIds (or hydrated objects from controller)
   ) {
     this.driveId = driveId;
     this.name = name;
     this.createdBy = createdBy;
-    this.startDate = startDate;
-    this.endDate = endDate;
+    this.startDate = new Date(startDate);
+    this.endDate = new Date(endDate);
     this.location = location;
-    this.targetClasses = targetClasses;
+    this.targetClasses = Array.isArray(targetClasses) ? targetClasses : [];
     this.notes = notes;
     this.status = status;
-    this.vaccines = Array.isArray(vaccines) ? vaccines.map(v => new Vaccine(v.vaccineId,v.vaccineName,v.manufacturer,v.dosage,v.description,v.storageRequirements,v.batches,v.dosesPerVial,v.vaccineType,v.administerBefore,v.countryOfOrigin,v.packageInsert,v.numberOfVials)) : []; // Initialize as an array of Vaccine objects
-  }
-
-  // Method to convert the VaccinationDrive object to a JSON string for SQLite storage
-  toJSONForSQLite() {
-    return JSON.stringify({
-      driveId: this.driveId,
-      name: this.name,
-      createdBy: this.createdBy,
-      startDate: this.startDate.toISOString(),
-      endDate: this.endDate.toISOString(),
-      location: this.location,
-      targetClasses: JSON.stringify(this.targetClasses),
-      notes: this.notes,
-      status: this.status,
-      vaccines: this.vaccines.map(vaccine => vaccine.toJSONForSQLite()), // Use Vaccine's toJSONForSQLite
-    });
-  }
-
-  // Static method to create a VaccinationDrive object from a JSON string retrieved from SQLite
-  static fromJSONSQLite(jsonString) {
-    const data = JSON.parse(jsonString);
-    const vaccines = JSON.parse(data.vaccines).map(vaccineData => Vaccine.fromJSONSQLite(vaccineData)); // Use Vaccine's fromJSONSQLite
-    return new VaccinationDrive(
-      data.driveId,
-      data.name,
-      data.createdBy,
-      new Date(data.startDate),
-      new Date(data.endDate),
-      data.location,
-      JSON.parse(data.targetClasses),
-      data.notes,
-      data.status,
-      vaccines
-    );
+    this.vaccines = Array.isArray(vaccines) ? vaccines : []; // could be IDs or full objects (for output)
   }
 
   /**
-   * Adds a vaccine to the vaccination drive.
-   * @param vaccine - The vaccine object to add.
+   * Convert drive to an object for database insertion.
+   * Stores only vaccineIds (not full objects).
    */
-  addVaccine(vaccine) {
-    this.vaccines.push(vaccine);
+  toObjectForSQLite() {
+    return {
+      drive_id: this.driveId,
+      name: this.name,
+      created_by: this.createdBy,
+      start_date: this.startDate.toISOString(),
+      end_date: this.endDate.toISOString(),
+      location: this.location,
+      target_classes: JSON.stringify(this.targetClasses),
+      notes: this.notes,
+      status: this.status,
+      vaccines: JSON.stringify(
+        this.vaccines.map(v =>
+          typeof v === 'string' ? v : v.vaccineId // if already hydrated, use ID
+        )
+      )
+    };
+  }
+
+  /**
+   * Recreate from a SQLite row with full vaccine objects
+   */
+  static fromSQLiteRow(row) {
+    return new VaccinationDrive(
+      row.drive_id,
+      row.name,
+      row.created_by,
+      row.start_date,
+      row.end_date,
+      row.location,
+      JSON.parse(row.target_classes),
+      row.notes,
+      row.status,
+      row.vaccines ? JSON.parse(row.vaccines) : []
+    );
   }
 }
 

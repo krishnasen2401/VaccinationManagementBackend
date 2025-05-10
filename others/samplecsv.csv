@@ -1,0 +1,3 @@
+name,classId,StudentID,dateOfBirth,guardians
+Alice,class-1,STU001,2010-05-14,"[{""name"":""Parent A"",""phoneNumber"":""1234567890""}]"
+Bob,class-2,STU002,2011-03-22,"[{""name"":""Parent B"",""phoneNumber"":""9876543210""}]"

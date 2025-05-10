@@ -32,11 +32,12 @@ try {
     const createStudentsTableSQL = `
         CREATE TABLE IF NOT EXISTS students (
             student_id TEXT PRIMARY KEY,
-            name TEXT NOT NULL,
-            class_id TEXT,
-            date_of_birth TEXT,
-            guardians TEXT,
-            FOREIGN KEY (class_id) REFERENCES classes(class_id)
+                    name TEXT NOT NULL,
+                    class_id TEXT,
+                    StudentID TEXT,
+                    date_of_birth TEXT,
+                    guardians TEXT,
+                    FOREIGN KEY (class_id) REFERENCES classes(class_id) 
         );
     `;
 

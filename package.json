@@ -2,15 +2,23 @@
   "name": "vaccinationmanagementbackend",
   "version": "1.0.0",
   "description": "backend",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
-    "setup-db": "node database/setup.js"
+    "setup-db": "node database/setup.js",
+    "start": "node app.js",
+    "dev": "nodemon app.js"
   },
   "author": "krishnasen",
   "license": "ISC",
   "dependencies": {
     "better-sqlite3": "^11.9.1",
-    "body-parser": "2.2.0",
-    "express": "5.1.0"
+    "body-parser": "^2.2.0",
+    "cors": "^2.8.5",
+    "csv-parser": "^3.2.0",
+    "express": "^5.1.0",
+    "multer": "^1.4.5-lts.2",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
+    "uuid": "^11.1.0"
   }
 }
