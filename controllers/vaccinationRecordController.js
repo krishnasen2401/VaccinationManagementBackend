@@ -87,7 +87,7 @@ const getRecords = (filters = {}) => {
     const record = VaccinationRecord.fromSQLiteRow(row);
     // const drive= getDriveByJustId(record.driveId);
     record.vaccine = getVaccineById(record.vaccineId);
-    // record.driveId = getDriveByJustId(record.driveId).name;
+    // record.drive = drive;
     record.studentId=getStudentById(record.studentId);
     return record;
   });
