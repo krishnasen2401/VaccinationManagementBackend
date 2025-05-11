@@ -1,3 +1,5 @@
 name,classId,StudentID,dateOfBirth,guardians
-Alice,class-1,STU001,2010-05-14,"[{""name"":""Parent A"",""phoneNumber"":""1234567890""}]"
-Bob,class-2,STU002,2011-03-22,"[{""name"":""Parent B"",""phoneNumber"":""9876543210""}]"
+Alice,af071d77-4b97-4e43-9382-d3d9c45477b0,STU001,2010-05-14,"[{""name"":""Parent A"",""phoneNumber"":""1234567890""}]"
+Bob,40cdc07c-445d-42ee-a378-ab5049b1ce4,STU002,2011-03-22,"[{""name"":""Parent B"",""phoneNumber"":""9876543210""}]"
+Nimmi,66d9fc94-144f-4910-9048-a82529f32522,STU003,2010-06-14,"[{""name"":""Parent A"",""phoneNumber"":""1234567890""}]"
+Mimmi,40cdc07c-445d-42ee-a378-ab5049b1ce48,STU003,2000-05-06,"[{""name"":""Parent A"",""phoneNumber"":""1234567890""}]"

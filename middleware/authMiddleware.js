@@ -15,7 +15,7 @@ const requireAuth = (req, res, next) => {
     return res.status(403).json({ message: 'Unauthorized token' });
   } 
 
-  req.user = user; // optionally attach user to request
+  req.user = user;
   next();
 };
 

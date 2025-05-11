@@ -9,7 +9,7 @@ class VaccinationDrive {
     targetClasses,
     notes,
     status,
-    vaccines // now an array of vaccineIds (or hydrated objects from controller)
+    vaccines
   ) {
     this.driveId = driveId;
     this.name = name;
@@ -20,13 +20,9 @@ class VaccinationDrive {
     this.targetClasses = Array.isArray(targetClasses) ? targetClasses : [];
     this.notes = notes;
     this.status = status;
-    this.vaccines = Array.isArray(vaccines) ? vaccines : []; // could be IDs or full objects (for output)
+    this.vaccines = Array.isArray(vaccines) ? vaccines : [];
   }
 
-  /**
-   * Convert drive to an object for database insertion.
-   * Stores only vaccineIds (not full objects).
-   */
   toObjectForSQLite() {
     return {
       drive_id: this.driveId,
@@ -40,15 +36,12 @@ class VaccinationDrive {
       status: this.status,
       vaccines: JSON.stringify(
         this.vaccines.map(v =>
-          typeof v === 'string' ? v : v.vaccineId // if already hydrated, use ID
+          typeof v === 'string' ? v : v.vaccineId
         )
       )
     };
   }
 
-  /**
-   * Recreate from a SQLite row with full vaccine objects
-   */
   static fromSQLiteRow(row) {
     return new VaccinationDrive(
       row.drive_id,

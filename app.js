@@ -5,10 +5,8 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const path = require('path');
 
-// Middleware
 const { requireAuth } = require('./middleware/authMiddleware');
 
-// Route imports
 const studentRoutes = require('./routes/studentRoutes');
 const classRoutes = require('./routes/classRoutes');
 const userRoutes = require('./routes/userRoutes');
@@ -21,7 +19,6 @@ const dashboardRoutes = require('./routes/dashboardRoute');
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Middleware setup
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -66,27 +63,22 @@ const swaggerOptions = {
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-// Unprotected user routes
 app.use('/users', userRoutes);
 
-// Apply authentication globally for remaining routes
 app.use(requireAuth);
 
-// Protected routes
 app.use('/students', studentRoutes);
 app.use('/classes', classRoutes);
 app.use('/vaccines', vaccineRoutes);
 app.use('/drives', vaccinationDriveRoutes);
 app.use('/records', vaccinationRecordRoutes);
-app.use('/students', studentUploadRoutes); // handles /students/upload
+app.use('/students', studentUploadRoutes);
 app.use('/dashboard', dashboardRoutes);
 
-// Root endpoint
 app.get('/', (req, res) => {
   res.send('Welcome to the Vaccination Management Backend');
 });
 
-// Start server
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
   console.log(`Swagger docs available at http://localhost:${port}/api-docs`);

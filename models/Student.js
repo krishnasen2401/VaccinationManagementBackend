@@ -14,14 +14,14 @@ class Student {
   }
 
   toJSON() {
-    return JSON.stringify({
+    return {
       studentId: this.studentId,
       name: this.name,
       classId: this.classId,
       StudentID: this.StudentID,
       dateOfBirth: this.dateOfBirth,
       guardians: this.guardians,
-    });
+    };
   }
 
   static fromSQLiteRow(row) {

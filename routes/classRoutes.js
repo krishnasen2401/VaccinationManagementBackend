@@ -62,6 +62,7 @@ const SchoolClass = require('../models/SchoolClass');
 router.get('/', (req, res) => {
   const { name, section } = req.query;
   const classes = getAllClasses({ name, section });
+  console.log(classes);
   res.json(classes);
 });
 

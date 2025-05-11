@@ -1,6 +1,7 @@
 const Student = require('../models/Student');
 
 const db = require('../database/db');
+const { getClassById } = require('../controllers/classController');
 
 const addStudent = (student) => {
   const stmt = db.prepare(`
@@ -36,7 +37,10 @@ const updateStudent = (student) => {
 const getStudentById = (studentId) => {
   const stmt = db.prepare(`SELECT * FROM students WHERE student_id = ?`);
   const row = stmt.get(studentId);
-  return row ? Student.fromSQLiteRow(row) : null;
+  const student=Student.fromSQLiteRow(row);
+  const classObj = getClassById(student.classId);
+  student.classId = classObj;
+  return row ? student : null;
 };
 
 const getAllStudents = (filters = {}) => {
@@ -71,7 +75,12 @@ const getAllStudents = (filters = {}) => {
 
   const stmt = db.prepare(query);
   const rows = stmt.all(...params);
-  return rows.map((row) => Student.fromSQLiteRow(row));
+  return rows.map((row) => {
+    const student = Student.fromSQLiteRow(row);
+    const classObj = getClassById(student.classId);
+    student.classId = classObj;
+    return student;
+  });
 };
 
 const deleteStudentById = (studentId) => {

@@ -5,7 +5,7 @@ class Users {
     this.password = password;
     this.token = token;
     this.contact = contact;
-    this.roles = roles; // should be an array like ['admin'], ['healthWorker']
+    this.roles = roles;
   }
 
   toObjectForSQLite() {

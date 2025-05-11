@@ -3,11 +3,13 @@ const VaccinationDrive = require('../models/VaccinationDrive');
 const { getVaccineById } = require('./vaccineController');
 const { getAllStudents } = require('./studentController');
 const { getRecords } = require('./vaccinationRecordController');
+const { getClassById } = require('../controllers/classController');
 
-// Store logic to compute drive analytics
 function computeDriveAnalytics(drive, allStudents, allRecords) {
+  const targetClassIds = drive.targetClasses.map(cls => cls.classId);
+
   const targetStudents = allStudents.filter(student =>
-    drive.targetClasses.includes(student.classId)
+    targetClassIds.includes(student.classId)
   );
 
   const driveRecords = allRecords.filter(record => record.driveId === drive.driveId);
@@ -33,6 +35,7 @@ function computeDriveAnalytics(drive, allStudents, allRecords) {
     percentVaccinated: Number(percentVaccinated)
   };
 }
+
 
 const addDrive = (drive) => {
   const stmt = db.prepare(`
@@ -90,6 +93,10 @@ function fromRow(row) {
     .map(id => getVaccineById(id))
     .filter(Boolean);
 
+  const targetClassIds = JSON.parse(row.target_classes || '[]')
+    .map(id => getClassById(id))
+    .filter(Boolean);  
+
   return new VaccinationDrive(
     row.drive_id,
     row.name,
@@ -97,7 +104,7 @@ function fromRow(row) {
     new Date(row.start_date),
     new Date(row.end_date),
     row.location,
-    JSON.parse(row.target_classes || '[]'),
+    targetClassIds,
     row.notes,
     row.status,
     vaccineObjs

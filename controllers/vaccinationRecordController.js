@@ -2,6 +2,7 @@ const db = require('../database/db');
 const VaccinationRecord = require('../models/VaccinationRecord');
 const { getVaccineById } = require('./vaccineController');
 const { getDriveById } = require('./vaccinationDriveController');
+const { getStudentById } = require('../controllers/studentController');
 
 const addRecord = (record) => {
   const stmt = db.prepare(`
@@ -51,6 +52,7 @@ const getRecordById = (id) => {
   const record = VaccinationRecord.fromSQLiteRow(row);
   record.vaccine = getVaccineById(record.vaccineId);
   record.drive = getDriveById(record.driveId);
+  record.studentId=getStudentById(record.studentId);
   return record;
 };
 
@@ -85,6 +87,7 @@ const getRecords = (filters = {}) => {
     const record = VaccinationRecord.fromSQLiteRow(row);
     record.vaccine = getVaccineById(record.vaccineId);
     record.drive = getDriveById(record.driveId);
+    record.studentId=getStudentById(record.studentId);
     return record;
   });
 };

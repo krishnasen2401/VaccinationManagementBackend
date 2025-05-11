@@ -1,4 +1,3 @@
-// routes/studentUploadRoute.js
 const express = require('express');
 const multer = require('multer');
 const csv = require('csv-parser');
@@ -65,7 +64,7 @@ router.post('/upload', upload.single('file'), (req, res) => {
         }
       });
 
-      fs.unlinkSync(filePath); // Clean up
+      fs.unlinkSync(filePath);
       res.json({ successCount, errorCount, errors });
     });
 });

@@ -6,11 +6,11 @@ class SchoolClass {
   }
 
   toJSON() {
-    return JSON.stringify({
+    return {
       classId: this.classId,
       name: this.name,
       section: this.section,
-    });
+    };
   }
 
   toJSONForSQLite() {

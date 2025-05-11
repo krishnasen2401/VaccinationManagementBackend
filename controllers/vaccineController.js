@@ -1,5 +1,5 @@
 const Vaccine = require('../models/Vaccine');
-
+const db = require('../database/db');
 const addVaccine = (vaccine) => {
   const stmt = db.prepare(`
     INSERT INTO vaccines (
@@ -18,7 +18,7 @@ const addVaccine = (vaccine) => {
     JSON.stringify(vaccine.batches),
     vaccine.dosesPerVial,
     vaccine.vaccineType,
-    vaccine.administerBefore,
+    vaccine.administerBefore ? vaccine.administerBefore.toISOString() : null,
     vaccine.countryOfOrigin,
     vaccine.packageInsert,
     vaccine.numberOfVials

@@ -1,7 +1,6 @@
 const Users = require('../models/Users');
 const db = require('../database/db');
 
-// Add a new user
 const addUser = (user) => {
   const stmt = db.prepare(`
     INSERT INTO users (user_id, username, password, token, contact, roles)
@@ -17,7 +16,6 @@ const addUser = (user) => {
   );
 };
 
-// Update existing user
 const updateUser = (user) => {
   const stmt = db.prepare(`
     UPDATE users
@@ -34,20 +32,17 @@ const updateUser = (user) => {
   );
 };
 
-// Delete user by ID
 const deleteUserById = (userId) => {
   const stmt = db.prepare(`DELETE FROM users WHERE user_id = ?`);
   stmt.run(userId);
 };
 
-// Get user by ID
 const getUserById = (userId) => {
   const stmt = db.prepare(`SELECT user_id,username,contact,roles FROM users WHERE user_id = ?`);
   const row = stmt.get(userId);
   return row ? Users.fromSQLiteRow(row) : null;
 };
 
-// Get all users, optionally filtered by fields or roles
 const getUsers = (filters = {}) => {
   const { username, contact, role } = filters;
 
