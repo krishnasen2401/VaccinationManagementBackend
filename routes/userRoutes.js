@@ -101,8 +101,7 @@ router.post('/login', (req, res) => {
   if (!user) {
     return res.status(401).json({ message: 'Invalid credentials' });
   }
-
-  res.json({ message: 'Login successful', token: user.token });
+  res.json({ message: 'Login successful', token: "XYZ-token" });
 });
 
 /**
