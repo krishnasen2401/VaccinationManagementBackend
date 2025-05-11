@@ -42,7 +42,7 @@ const deleteUserById = (userId) => {
 
 // Get user by ID
 const getUserById = (userId) => {
-  const stmt = db.prepare(`SELECT * FROM users WHERE user_id = ?`);
+  const stmt = db.prepare(`SELECT user_id,username,token,contact,roles FROM users WHERE user_id = ?`);
   const row = stmt.get(userId);
   return row ? Users.fromSQLiteRow(row) : null;
 };
@@ -51,7 +51,7 @@ const getUserById = (userId) => {
 const getUsers = (filters = {}) => {
   const { username, contact, role } = filters;
 
-  let query = `SELECT * FROM users WHERE 1=1`;
+  let query = `SELECT user_id,username,token,contact,roles FROM users WHERE 1=1`;
   const params = [];
 
   if (username) {

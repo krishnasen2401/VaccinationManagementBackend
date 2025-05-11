@@ -1,1 +1,4 @@
 node_modules
+database/vaccination_data.db
+database/vaccination_data.db-shm
+database/vaccination_data.db-wal

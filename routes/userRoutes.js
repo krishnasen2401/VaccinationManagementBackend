@@ -7,7 +7,7 @@ const {
   updateUser,
   deleteUserById,
   getUserById,
-  getAllUsers
+  getUsers
 } = require('../controllers/userController');
 
 const router = express.Router();
@@ -127,7 +127,7 @@ router.post('/login', (req, res) => {
  *         description: List of users
  */
 router.get('/', (req, res) => {
-  const users = getAllUsers(req.query);
+  const users = getUsers(req.query);
   res.json(users);
 });
 
