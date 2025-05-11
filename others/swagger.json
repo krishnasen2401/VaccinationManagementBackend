@@ -1,0 +1,1487 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Vaccination Management API",
+    "version": "1.0.0",
+    "description": "API documentation for the School Vaccination Management System"
+  },
+  "servers": [
+    {
+      "url": "http://192.168.29.7:3000",
+      "description": "Local IP access"
+    },
+    {
+      "url": "http://localhost:3000",
+      "description": "Localhost access"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "SchoolClass": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "classId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Auto-generated class ID",
+            "example": "4b4a822b-bf71-4a7d-9f13-13340f45eac5"
+          },
+          "name": {
+            "type": "string",
+            "example": "10"
+          },
+          "section": {
+            "type": "string",
+            "example": "A"
+          }
+        }
+      },
+      "Guardian": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Jane Doe"
+          },
+          "phoneNumber": {
+            "type": "string",
+            "example": "9876543210"
+          }
+        }
+      },
+      "Student": {
+        "type": "object",
+        "required": [
+          "name",
+          "classId",
+          "StudentID",
+          "dateOfBirth"
+        ],
+        "properties": {
+          "studentId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Auto-generated internal ID",
+            "example": "c3d8fc3e-1e48-44aa-a769-0c51293fbd2b"
+          },
+          "name": {
+            "type": "string",
+            "example": "John Doe"
+          },
+          "classId": {
+            "type": "string",
+            "format": "uuid",
+            "example": "d2b1aef4-3f24-4c65-9886-25cd3fe49a12"
+          },
+          "StudentID": {
+            "type": "string",
+            "description": "Visible roll number or admission number",
+            "example": "10A-023"
+          },
+          "dateOfBirth": {
+            "type": "string",
+            "format": "date",
+            "example": "2008-06-15"
+          },
+          "guardians": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Guardian"
+            }
+          }
+        }
+      },
+      "User": {
+        "type": "object",
+        "required": [
+          "username",
+          "password"
+        ],
+        "properties": {
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "username": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "token": {
+            "type": "string"
+          },
+          "contact": {
+            "type": "string"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "Vaccine": {
+        "type": "object",
+        "properties": {
+          "vaccineId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "vaccineName": {
+            "type": "string"
+          },
+          "manufacturer": {
+            "type": "string"
+          },
+          "dosage": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "storageRequirements": {
+            "type": "string"
+          },
+          "dosesPerVial": {
+            "type": "integer"
+          },
+          "vaccineType": {
+            "type": "string"
+          },
+          "administerBefore": {
+            "type": "string",
+            "format": "date"
+          },
+          "countryOfOrigin": {
+            "type": "string"
+          },
+          "packageInsert": {
+            "type": "string"
+          },
+          "numberOfVials": {
+            "type": "integer"
+          },
+          "batches": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "batchId": {
+                  "type": "string"
+                },
+                "expiryDate": {
+                  "type": "string"
+                },
+                "receivedDate": {
+                  "type": "string"
+                }
+              },
+              "$ref": "#/components/schemas/Batch"
+            }
+          }
+        },
+        "required": [
+          "vaccineName"
+        ]
+      },
+      "VaccinationDrive": {
+        "type": "object",
+        "properties": {
+          "driveId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "createdBy": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string"
+          },
+          "endDate": {
+            "type": "string"
+          },
+          "location": {
+            "type": "string"
+          },
+          "targetClasses": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "notes": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "vaccines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Vaccine"
+            }
+          },
+          "registeredStudents": {
+            "type": "integer"
+          },
+          "vaccinatedStudents": {
+            "type": "integer"
+          },
+          "expectedTotalDoses": {
+            "type": "integer"
+          },
+          "totalVaccinationRecords": {
+            "type": "integer"
+          },
+          "percentVaccinated": {
+            "type": "number"
+          }
+        }
+      },
+      "VaccinationRecord": {
+        "type": "object",
+        "required": [
+          "studentId",
+          "date",
+          "vaccineId"
+        ],
+        "properties": {
+          "recordId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "studentId": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "driveId": {
+            "type": "string"
+          },
+          "vaccineId": {
+            "type": "string"
+          },
+          "administeredBy": {
+            "type": "string"
+          },
+          "batchId": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          }
+        }
+      },
+      "Batch": {
+        "type": "object",
+        "properties": {
+          "batchId": {
+            "type": "string"
+          },
+          "expiryDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "receivedDate": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      }
+    }
+  },
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "paths": {
+    "/auth/login": {
+      "post": {
+        "summary": "Simulated user login",
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "username": "admin1",
+                "password": "securepass"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful",
+            "content": {
+              "application/json": {
+                "example": {
+                  "token": "xyz-token",
+                  "user": {
+                    "userId": "uuid",
+                    "username": "admin1",
+                    "roles": [
+                      "admin"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid credentials"
+          }
+        }
+      }
+    },
+    "/classes": {
+      "get": {
+        "summary": "Get all classes or filter by name/section",
+        "tags": [
+          "Classes"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "name",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Partial match on class name"
+          },
+          {
+            "in": "query",
+            "name": "section",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Exact match on section"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of matching classes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SchoolClass"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new class (UUID auto-generated)",
+        "tags": [
+          "Classes"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "name": "12",
+                "section": "C"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Class created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SchoolClass"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update an existing class",
+        "tags": [
+          "Classes"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "classId": "4b4a822b-bf71-4a7d-9f13-13340f45eac5",
+                "name": "11",
+                "section": "B"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Class updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Class updated successfully"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/classes/{id}": {
+      "get": {
+        "summary": "Get a class by its UUID",
+        "tags": [
+          "Classes"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Class found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SchoolClass"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Class not found"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a class by ID",
+        "tags": [
+          "Classes"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Class deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Class deleted successfully"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dashboard/summary": {
+      "get": {
+        "summary": "Get summary statistics for dashboard",
+        "tags": [
+          "Dashboard"
+        ],
+        "responses": {
+          "200": {
+            "description": "Dashboard data including total students, vaccinated count, and upcoming drives",
+            "content": {
+              "application/json": {
+                "example": {
+                  "totalStudents": 120,
+                  "vaccinatedStudents": 110,
+                  "percentVaccinated": 91.67,
+                  "upcomingDrives": 3
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/students": {
+      "get": {
+        "summary": "Get all students with optional filters",
+        "tags": [
+          "Students"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "name",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Partial match on student name"
+          },
+          {
+            "in": "query",
+            "name": "studentId",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by StudentID (visible roll number)"
+          },
+          {
+            "in": "query",
+            "name": "classId",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by class UUID"
+          },
+          {
+            "in": "query",
+            "name": "dateOfBirth",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "description": "Exact match on date of birth"
+          },
+          {
+            "in": "query",
+            "name": "guardianPhone",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Exact match on a guardian's phone number"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of students matching filters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Student"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Add a new student (UUID auto-generated)",
+        "tags": [
+          "Students"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "name": "Alice Smith",
+                "classId": "a7b1cfc8-2c1b-4c24-bac1-8fbc3a1c1234",
+                "StudentID": "10B-045",
+                "dateOfBirth": "2009-02-10",
+                "guardians": [
+                  {
+                    "name": "Bob Smith",
+                    "phoneNumber": "9123456789"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Student added successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Student"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update an existing student",
+        "tags": [
+          "Students"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "studentId": "c3d8fc3e-1e48-44aa-a769-0c51293fbd2b",
+                "name": "John Doe Updated",
+                "classId": "d2b1aef4-3f24-4c65-9886-25cd3fe49a12",
+                "StudentID": "10A-023",
+                "dateOfBirth": "2008-06-15",
+                "guardians": [
+                  {
+                    "name": "Jane Doe",
+                    "phoneNumber": "9876543210"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Student updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Student updated successfully"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/students/{id}": {
+      "get": {
+        "summary": "Get a student by internal UUID",
+        "tags": [
+          "Students"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Student found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Student"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Student not found"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a student by internal UUID",
+        "tags": [
+          "Students"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Student deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Student deleted successfully"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/students/upload": {
+      "post": {
+        "summary": "Upload a CSV file of students",
+        "tags": [
+          "Students"
+        ],
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Upload processed with summary"
+          }
+        }
+      }
+    },
+    "/users/register": {
+      "post": {
+        "summary": "Register a new user",
+        "tags": [
+          "Users"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "username": "admin",
+                "password": "securepass",
+                "contact": "1234567890",
+                "roles": [
+                  "admin"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User registered"
+          },
+          "409": {
+            "description": "User already exists"
+          }
+        }
+      }
+    },
+    "/users/login": {
+      "post": {
+        "summary": "Log in a user",
+        "tags": [
+          "Users"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "username": "admin",
+                "password": "securepass"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful"
+          },
+          "401": {
+            "description": "Invalid credentials"
+          }
+        }
+      }
+    },
+    "/users": {
+      "get": {
+        "summary": "Get all users",
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "username",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "role",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of users"
+          }
+        }
+      },
+      "post": {
+        "summary": "Add a new user",
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "username": "admin",
+                "password": "securepass",
+                "contact": "1234567890",
+                "roles": [
+                  "admin"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User created"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update an existing user",
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "userId": "user-uuid",
+                "username": "admin",
+                "password": "newpass",
+                "contact": "9876543210",
+                "roles": [
+                  "admin"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User updated"
+          }
+        }
+      }
+    },
+    "/users/{id}": {
+      "get": {
+        "summary": "Get user by ID",
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User found"
+          },
+          "404": {
+            "description": "User not found"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a user",
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User deleted"
+          }
+        }
+      }
+    },
+    "/drives": {
+      "get": {
+        "summary": "Get all vaccination drives with analytics",
+        "tags": [
+          "VaccinationDrive"
+        ],
+        "responses": {
+          "200": {
+            "description": "List of enriched drives",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/VaccinationDrive"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new vaccination drive",
+        "tags": [
+          "VaccinationDrive"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "name": "Drive A",
+                "createdBy": "user-uuid",
+                "startDate": "2025-06-01T00:00:00Z",
+                "endDate": "2025-06-10T00:00:00Z",
+                "location": "School A",
+                "targetClasses": [
+                  "class-1",
+                  "class-2"
+                ],
+                "notes": "First drive",
+                "status": "upcoming",
+                "vaccines": [
+                  "vaccine-uuid-1"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Drive created"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update a vaccination drive",
+        "tags": [
+          "VaccinationDrive"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "driveId": "drive-uuid",
+                "name": "Updated Drive",
+                "createdBy": "user-uuid",
+                "startDate": "2025-06-02T00:00:00Z",
+                "endDate": "2025-06-12T00:00:00Z",
+                "location": "Updated School",
+                "targetClasses": [
+                  "class-1"
+                ],
+                "notes": "Postponed",
+                "status": "ongoing",
+                "vaccines": [
+                  "vaccine-uuid-1"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Drive updated"
+          }
+        }
+      }
+    },
+    "/drives/{id}": {
+      "get": {
+        "summary": "Get a single vaccination drive with analytics",
+        "tags": [
+          "VaccinationDrive"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A vaccination drive",
+            "content": {
+              "application/json": {
+                "example": {
+                  "driveId": "abc123",
+                  "name": "Polio Drive",
+                  "createdBy": "user-uuid",
+                  "startDate": "2025-06-01T00:00:00Z",
+                  "endDate": "2025-06-05T00:00:00Z",
+                  "location": "Greenfield School",
+                  "targetClasses": [
+                    "class-1"
+                  ],
+                  "notes": "Routine immunization",
+                  "status": "ongoing",
+                  "vaccines": [
+                    {
+                      "vaccineId": "vax001",
+                      "vaccineName": "Polio"
+                    }
+                  ],
+                  "registeredStudents": 80,
+                  "vaccinatedStudents": 72,
+                  "expectedTotalDoses": 80,
+                  "totalVaccinationRecords": 72,
+                  "percentVaccinated": 90
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Drive not found"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a vaccination drive",
+        "tags": [
+          "VaccinationDrive"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Drive deleted"
+          }
+        }
+      }
+    },
+    "/records": {
+      "get": {
+        "summary": "Get all vaccination records (with nested vaccine & drive)",
+        "tags": [
+          "VaccinationRecord"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "studentId",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "vaccineId",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "driveId",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "fromDate",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "in": "query",
+            "name": "toDate",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of vaccination records with nested details"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new vaccination record",
+        "tags": [
+          "VaccinationRecord"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "studentId": "student-uuid",
+                "date": "2025-05-01T10:00:00Z",
+                "driveId": "drive-uuid",
+                "vaccineId": "vaccine-uuid",
+                "administeredBy": "user-uuid",
+                "batchId": "batch-001",
+                "notes": "No side effects"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Record created"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update a vaccination record",
+        "tags": [
+          "VaccinationRecord"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "recordId": "record-uuid",
+                "studentId": "student-uuid",
+                "date": "2025-05-01T10:00:00Z",
+                "driveId": "drive-uuid",
+                "vaccineId": "vaccine-uuid",
+                "administeredBy": "user-uuid",
+                "batchId": "batch-123",
+                "notes": "Follow-up required"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Record updated"
+          }
+        }
+      }
+    },
+    "/records/{id}": {
+      "get": {
+        "summary": "Get vaccination record by ID (with nested details)",
+        "tags": [
+          "VaccinationRecord"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Record with nested vaccine & drive info"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a vaccination record",
+        "tags": [
+          "VaccinationRecord"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Record deleted"
+          }
+        }
+      }
+    },
+    "/vaccines": {
+      "get": {
+        "summary": "Get all vaccines with optional filters",
+        "tags": [
+          "Vaccines"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "name",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by vaccine name (partial)"
+          },
+          {
+            "in": "query",
+            "name": "manufacturer",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by manufacturer"
+          },
+          {
+            "in": "query",
+            "name": "type",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by vaccine type"
+          },
+          {
+            "in": "query",
+            "name": "batchId",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by batch ID inside JSON"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of vaccines",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Vaccine"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Add a new vaccine",
+        "tags": [
+          "Vaccines"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "vaccineName": "Hepatitis B",
+                "manufacturer": "XYZ Pharma",
+                "dosage": "0.5ml",
+                "description": "Preventive vaccine for Hepatitis B",
+                "storageRequirements": "2-8C",
+                "batches": [
+                  {
+                    "batchId": "HBV-123",
+                    "expiryDate": "2026-03-01",
+                    "receivedDate": "2024-04-01"
+                  }
+                ],
+                "dosesPerVial": 5,
+                "vaccineType": "Injection",
+                "administerBefore": "2026-03-31",
+                "countryOfOrigin": "India",
+                "packageInsert": "See leaflet",
+                "numberOfVials": 100
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Vaccine created"
+          }
+        }
+      }
+    },
+    "/vaccines/{id}": {
+      "get": {
+        "summary": "Get a vaccine by ID",
+        "tags": [
+          "Vaccines"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Vaccine found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Vaccine"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Vaccine not found"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a vaccine by ID",
+        "tags": [
+          "Vaccines"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Vaccine deleted"
+          }
+        }
+      }
+    }
+  },
+  "tags": []
+}
