@@ -37,7 +37,11 @@ const swaggerOptions = {
     servers: [
       {
         url: 'http://192.168.29.7:3000',
-        description: 'Local server'
+        description: 'Local IP access'
+      },
+      {
+        url: 'http://localhost:3000',
+        description: 'Localhost access'
       }
     ],
     components: {
