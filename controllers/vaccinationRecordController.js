@@ -1,7 +1,7 @@
 const db = require('../database/db');
 const VaccinationRecord = require('../models/VaccinationRecord');
 const { getVaccineById } = require('./vaccineController');
-const { getDriveById } = require('./vaccinationDriveController');
+const { getDriveByJustId } = require('./vaccinationDriveController');
 const { getStudentById } = require('../controllers/studentController');
 
 const addRecord = (record) => {
@@ -51,7 +51,7 @@ const getRecordById = (id) => {
   if (!row) return null;
   const record = VaccinationRecord.fromSQLiteRow(row);
   record.vaccine = getVaccineById(record.vaccineId);
-  record.drive = getDriveById(record.driveId);
+  record.drive = getDriveByJustId(record.driveId);
   record.studentId=getStudentById(record.studentId);
   return record;
 };
@@ -85,8 +85,9 @@ const getRecords = (filters = {}) => {
   const rows = db.prepare(query).all(...params);
   return rows.map(row => {
     const record = VaccinationRecord.fromSQLiteRow(row);
+    // const drive= getDriveByJustId(record.driveId);
     record.vaccine = getVaccineById(record.vaccineId);
-    record.drive = getDriveById(record.driveId);
+    // record.driveId = getDriveByJustId(record.driveId).name;
     record.studentId=getStudentById(record.studentId);
     return record;
   });

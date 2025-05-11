@@ -125,6 +125,11 @@ const getDriveById = (id) => {
     ...analytics
   };
 };
+const getDriveByJustId = (id) => {
+  const row = db.prepare('SELECT * FROM vaccination_drives WHERE drive_id = ?').get(id);
+  if (!row) return null;
+  return VaccinationDrive.fromSQLiteRow(row);
+};
 
 const getAllDrives = (filters = {}) => {
   const { status, targetClass, vaccineName } = filters;
@@ -180,5 +185,6 @@ module.exports = {
   updateDrive,
   deleteDriveById,
   getDriveById,
-  getAllDrives
+  getAllDrives,
+  getDriveByJustId
 };
